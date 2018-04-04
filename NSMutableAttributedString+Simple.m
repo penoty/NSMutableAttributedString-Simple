@@ -7,11 +7,11 @@
 //
 
 #import "NSMutableAttributedString+Simple.h"
-
 @implementation NSString (Simple)
 @dynamic setFont;
 @dynamic setSystemFontSize;
 @dynamic setBoldSystemFontSize;
+@dynamic setFontNameAndSize;
 @dynamic font;
 
 @dynamic setColor;
@@ -34,9 +34,40 @@
 @dynamic setBrownColor;
 @dynamic setClearColor;
 
+@dynamic setUnderlineStyle;
+@dynamic underlineStyle;
+@dynamic setUnderlineColor;
+@dynamic underlineColor;
+
+@dynamic setStrikelineStyle;
+@dynamic strikelineStyle;
+@dynamic setStrikelineColor;
+@dynamic strikelineColor;
+
+- (void)setAttributes:(NSMutableDictionary *)attributes {
+    objc_setAssociatedObject(self, "NSString_Attributes", attributes, OBJC_ASSOCIATION_RETAIN);
+}
+
+- (NSMutableDictionary *)attributes {
+    if (!objc_getAssociatedObject(self, "NSString_Attributes")) {
+        objc_setAssociatedObject(self, "NSString_Attributes", @{}.mutableCopy, OBJC_ASSOCIATION_RETAIN);
+    }
+    return (NSMutableDictionary *)objc_getAssociatedObject(self, "NSString_Attributes");
+}
+
+- (void)setAttributeWithName:(NSString *)attributeName value:(id)attributeValue {
+    NSMutableDictionary *attributes = [self attributes];
+    attributes[attributeName] = attributeValue;
+    [self setAttributes:attributes];
+}
+
+- (id)attributeValueWithName:(NSString *)attributeName {
+    return [self attributes][attributeName];
+}
+
 - (NSString *(^)(UIColor *color))setColor {
     return ^(UIColor *color) {
-        objc_setAssociatedObject(self, "NSString_Attribute_Color", color, OBJC_ASSOCIATION_COPY_NONATOMIC);
+        [self setAttributeWithName:NSForegroundColorAttributeName value:color];
         return self;
     };
 }
@@ -148,13 +179,13 @@
 
 - (UIColor *(^)())color {
     return ^() {
-        return objc_getAssociatedObject(self, "NSString_Attribute_Color");
+        return [self attributeValueWithName:NSForegroundColorAttributeName];
     };
 }
 
 - (NSString *(^)(UIFont *font))setFont {
     return ^(UIFont *font) {
-        objc_setAssociatedObject(self, "NSString_Attribute_Font", font, OBJC_ASSOCIATION_COPY_NONATOMIC);
+        [self setAttributeWithName:NSFontAttributeName value:font];
         return self;
     };
 }
@@ -171,12 +202,69 @@
     };
 }
 
-- (UIFont *(^)())font {
-    return ^() {
-        return objc_getAssociatedObject(self, "NSString_Attribute_Font");
+- (NSString *(^)(NSString *name, CGFloat size))setFontNameAndSize {
+    return ^(NSString *name, CGFloat size) {
+        return self.setFont([UIFont fontWithName:name size:size]);
     };
 }
 
+- (UIFont *(^)())font {
+    return ^() {
+        return [self attributeValueWithName:NSFontAttributeName];
+    };
+}
+
+- (NSString *(^)(NSNumber * underlineStyle))setUnderlineStyle {
+    return ^(NSNumber * underlineStyle){
+        [self setAttributeWithName:NSUnderlineStyleAttributeName value:underlineStyle];
+        return self;
+    };
+}
+
+- (NSNumber * (^)())underlineStyle {
+    return ^() {
+        return [self attributeValueWithName:NSUnderlineStyleAttributeName];
+    };
+}
+
+- (NSString *(^)(UIColor *underlineColor))setUnderlineColor {
+    return ^(UIColor *underlineColor){
+        [self setAttributeWithName:NSUnderlineColorAttributeName value:underlineColor];
+        return self;
+    };
+}
+
+- (UIColor *(^)())underlineColor {
+    return ^(){
+        return [self attributeValueWithName:NSUnderlineColorAttributeName];
+    };
+}
+
+- (NSString *(^)(NSNumber *strikelineStyle))setStrikelineStyle {
+    return ^(NSNumber * strikelineStyle){
+        [self setAttributeWithName:NSStrikethroughStyleAttributeName value:strikelineStyle];
+        return self;
+    };
+}
+
+- (NSNumber * (^)())strikelineStyle {
+    return ^() {
+        return [self attributeValueWithName:NSStrikethroughStyleAttributeName];
+    };
+}
+
+- (NSString *(^)(UIColor *strikelineColor))setStrikelineColor {
+    return ^(UIColor *strikelineColor){
+        [self setAttributeWithName:NSStrikethroughColorAttributeName value:strikelineColor];
+        return self;
+    };
+}
+
+- (UIColor *(^)())strikelineColor {
+    return ^(){
+        return [self attributeValueWithName:NSStrikethroughColorAttributeName];
+    };
+}
 @end
 
 @implementation NSMutableString (Simple)
@@ -197,17 +285,25 @@
 @implementation NSMutableAttributedString (Simple)
 
 + (instancetype)stringWithFormat:(NSString *)format strings:(NSArray *)strArray {
-    NSMutableString *combinedStr = [NSMutableString stringWithFormat:format strings:strArray];
-    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:combinedStr];
-    NSUInteger lastLoc = 0;
-    for (NSString *str in strArray) {
-        if (lastLoc == NSNotFound) { return attributedString; }
-        NSRange range = [combinedStr rangeOfString:str options:NSLiteralSearch range:NSMakeRange(lastLoc, combinedStr.length - lastLoc)];
-        lastLoc = range.location + range.length;
-        [attributedString addAttributes:@{NSForegroundColorAttributeName:str.color(), NSFontAttributeName:str.font()} range:range];
+    @try {
+        NSMutableString *combinedStr = [NSMutableString stringWithFormat:format strings:strArray];
+        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:combinedStr];
+        NSUInteger lastLoc = 0;
+        for (NSString *str in strArray) {
+            if (lastLoc == NSNotFound) { return attributedString; }
+            NSRange range = [combinedStr rangeOfString:str options:NSLiteralSearch range:NSMakeRange(lastLoc, combinedStr.length - lastLoc)];
+            if (range.location != NSNotFound) {
+                lastLoc = range.location + range.length;
+                [attributedString addAttributes:[str attributes] range:range];
+            }
+        }
+        return attributedString;
     }
-    
-    return attributedString;
+    @catch (NSException *exception) {
+        return [[NSMutableAttributedString alloc] initWithString:@""];
+    }
+    @finally {
+    }
 }
 
 @end

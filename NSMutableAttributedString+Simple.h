@@ -9,13 +9,10 @@
 #import <Foundation/Foundation.h>
 #import "UIKit/UIKit.h"
 #import <objc/runtime.h>
-#define kUIColorFromRGB(rgbValue) [UIColor \
-colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \
-green:((float)((rgbValue & 0xFF00) >> 8))/255.0 \
-blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
+
 
 @interface NSString(Simple)
-
+// string color
 @property (nonatomic, copy) NSString * (^setColor)(UIColor *color);
 @property (nonatomic, copy) NSString * (^setColorWithRGB)(NSInteger rgb);
 
@@ -38,10 +35,24 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 
 @property (nonatomic, copy) UIColor * (^color)();
 
+// string font
 @property (nonatomic, copy) NSString * (^setFont)(UIFont *font);
 @property (nonatomic, copy) NSString * (^setSystemFontSize)(CGFloat size);
 @property (nonatomic, copy) NSString * (^setBoldSystemFontSize)(CGFloat size);
+@property (nonatomic, copy) NSString * (^setFontNameAndSize)(NSString *name, CGFloat size);
 @property (nonatomic, copy) UIFont * (^font)();
+
+// string underline
+@property (nonatomic, copy) NSString * (^setUnderlineStyle)(NSNumber * underlineStyle);
+@property (nonatomic, copy) NSNumber * (^underlineStyle)();
+@property (nonatomic, copy) NSString * (^setUnderlineColor)(UIColor *underlineColor);
+@property (nonatomic, copy) UIColor * (^underlineColor)();
+
+// string strikeline
+@property (nonatomic, copy) NSString * (^setStrikelineStyle)(NSNumber * strikelineStyle);
+@property (nonatomic, copy) NSNumber * (^strikelineStyle)();
+@property (nonatomic, copy) NSString * (^setStrikelineColor)(UIColor *strikelineColor);
+@property (nonatomic, copy) UIColor * (^strikelineColor)();
 
 @end
 
