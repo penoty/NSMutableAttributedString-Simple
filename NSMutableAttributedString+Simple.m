@@ -17,22 +17,6 @@
 @dynamic setColor;
 @dynamic color;
 @dynamic setColorWithRGB;
-@dynamic setColorWithName;
-@dynamic setBlackColor;
-@dynamic setDarkGrayColor;
-@dynamic setLightGrayColor;
-@dynamic setWhiteColor;
-@dynamic setGrayColor;
-@dynamic setRedColor;
-@dynamic setGreenColor;
-@dynamic setBlueColor;
-@dynamic setCyanColor;
-@dynamic setYellowColor;
-@dynamic setMagentaColor;
-@dynamic setOrangeColor;
-@dynamic setPurpleColor;
-@dynamic setBrownColor;
-@dynamic setClearColor;
 
 @dynamic setUnderlineStyle;
 @dynamic underlineStyle;
@@ -43,6 +27,9 @@
 @dynamic strikelineStyle;
 @dynamic setStrikelineColor;
 @dynamic strikelineColor;
+
+@dynamic setBackgroundColor;
+@dynamic backgroundColor;
 
 - (void)setAttributes:(NSMutableDictionary *)attributes {
     objc_setAssociatedObject(self, "NSString_Attributes", attributes, OBJC_ASSOCIATION_RETAIN);
@@ -75,105 +62,6 @@
 - (NSString *(^)(NSInteger rgb))setColorWithRGB {
     return ^(NSInteger rgb) {
         return self.setColor(kUIColorFromRGB(rgb));
-    };
-}
-
-- (NSString *(^)(NSString *name))setColorWithName {
-    return ^(NSString *name) {
-        if(!name) return self;
-        SEL commonColor = NSSelectorFromString([NSString stringWithFormat:@"%@Color", name]);
-        UIColor *colorFromName = [UIColor performSelector:commonColor];
-        return self.setColor(colorFromName);
-    };
-}
-
-- (NSString *(^)())setBlackColor {
-    return ^() {
-        return self.setColor([UIColor blackColor]);
-    };
-}
-
-- (NSString *(^)())setDarkGrayColor {
-    return ^() {
-        return self.setColor([UIColor darkGrayColor]);
-    };
-}
-
-- (NSString *(^)())setLightGrayColor {
-    return ^() {
-        return self.setColor([UIColor lightGrayColor]);
-    };
-}
-
-- (NSString *(^)())setWhiteColor {
-    return ^() {
-        return self.setColor([UIColor whiteColor]);
-    };
-}
-
-- (NSString *(^)())setGrayColor {
-    return ^() {
-        return self.setColor([UIColor grayColor]);
-    };
-}
-
-- (NSString *(^)())setRedColor {
-    return ^() {
-        return self.setColor([UIColor redColor]);
-    };
-}
-
-- (NSString *(^)())setGreenColor {
-    return ^() {
-        return self.setColor([UIColor greenColor]);
-    };
-}
-
-- (NSString *(^)())setBlueColor {
-    return ^() {
-        return self.setColor([UIColor blueColor]);
-    };
-}
-
-- (NSString *(^)())setCyanColor {
-    return ^() {
-        return self.setColor([UIColor cyanColor]);
-    };
-}
-
-- (NSString *(^)())setYellowColor {
-    return ^() {
-        return self.setColor([UIColor yellowColor]);
-    };
-}
-
-- (NSString *(^)())setMagentaColor {
-    return ^() {
-        return self.setColor([UIColor magentaColor]);
-    };
-}
-
-- (NSString *(^)())setOrangeColor {
-    return ^() {
-        return self.setColor([UIColor orangeColor]);
-    };
-}
-
-- (NSString *(^)())setPurpleColor {
-    return ^() {
-        return self.setColor([UIColor purpleColor]);
-    };
-}
-
-- (NSString *(^)())setBrownColor {
-    return ^() {
-        return self.setColor([UIColor brownColor]);
-    };
-}
-
-- (NSString *(^)())setClearColor {
-    return ^() {
-        return self.setColor([UIColor clearColor]);
     };
 }
 
@@ -263,6 +151,19 @@
 - (UIColor *(^)())strikelineColor {
     return ^(){
         return [self attributeValueWithName:NSStrikethroughColorAttributeName];
+    };
+}
+
+- (NSString *(^)(UIColor *backgroundColor))setBackgroundColor {
+    return ^(UIColor *backgroundColor){
+        [self setAttributeWithName:NSBackgroundColorAttributeName value:backgroundColor];
+        return self;
+    };
+}
+
+- (UIColor *(^)())backgroundColor {
+    return ^(){
+        return [self attributeValueWithName:NSBackgroundColorAttributeName];
     };
 }
 @end
