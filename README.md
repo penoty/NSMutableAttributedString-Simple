@@ -11,4 +11,4 @@ Simplify the process of creating NSMutableAttributedString with block. 使用链
                 .setStrikelineStyle(@(NSUnderlineStyleThick)).setStrikelineColor([UIColor blueColor]),
     ]];
     
-![image](https://github.com/penoty/NSMutableAttributeString-Simple/blob/master/sample.png )
+![image](https://github.com/penoty/NSMutableAttributeString-Simple/blob/master/test_sample.png )
